@@ -71,7 +71,9 @@ function UserSettingsDialog(dialog, onLoad, onSave) {
 		analyser			: {
 									left  : '5%',	// position from left (as a percentage of width)
 									top   : '60%',  // position from top (as a percentage of height)
-									size  : '35%'   // size (as a percentage of width)
+									size  : '35%',  // size (as a percentage of width)
+									mode  : 1,		// FFT scaling mode
+									windowSize : 60 // Default window size in seconds
 							  },
 	    watermark			: {
 									left  : '3%',	// position from left (as a percentage of width)
@@ -121,7 +123,9 @@ function UserSettingsDialog(dialog, onLoad, onSave) {
     					   size: $('.craft-settings input[name="craft-size"]').val() + '%', },
     			analyser:  {top: $('.analyser-settings input[name="analyser-top"]').val() + '%',
     					   left: $('.analyser-settings input[name="analyser-left"]').val() + '%',
-    					   size: $('.analyser-settings input[name="analyser-size"]').val() + '%', },
+    					   size: $('.analyser-settings input[name="analyser-size"]').val() + '%',
+                           windowSize: $('.analyser-settings input[name="analyser-windowsize"]').val() + 's', 
+                           mode: parseInt($('input:radio[name=analyser-mode]:checked').val()), },
     			watermark: {top: $('.watermark-settings input[name="watermark-top"]').val() + '%',
 					   	   left: $('.watermark-settings input[name="watermark-left"]').val() + '%',
 					   	   size: $('.watermark-settings input[name="watermark-size"]').val() + '%', 
@@ -234,6 +238,14 @@ function UserSettingsDialog(dialog, onLoad, onSave) {
 			}
 	}
 
+    function analyserModeSelection(val) {
+
+        if(val==null) val=1; // default for invalid values
+        currentSettings.analyser.mode = val;
+        var customValueElem = $('input[type=number][name=analyser-windowsize]');
+        customValueElem.val(((val==1)?60:0) + ((val==2)?30:0) + ((val==3)?60:0)); // set the custom value
+    }
+
  	// Buttons and Selectors
     
     $('select.mixerList').change(function () {
@@ -272,6 +284,10 @@ function UserSettingsDialog(dialog, onLoad, onSave) {
 
     $('input[type=radio][name=stick-mode]').change(function() {
         stickModeSelection(parseInt($(this).val()));
+    });
+
+    $('input[type=radio][name=analyser-mode]').change(function() {
+        analyserModeSelection(parseInt($(this).val()));
     });
 
     $(".stick-units").click(function() {
@@ -344,6 +360,7 @@ function UserSettingsDialog(dialog, onLoad, onSave) {
     		// setup the stick mode and dropdowns;
     		$('select.mixerList').val(currentSettings.mixerConfiguration);
     		$('input:radio[name="stick-mode"]').filter('[value="' + currentSettings.stickMode + '"]').attr('checked', true);
+            $('input:radio[name="analyser-mode"]').filter('[value="' + currentSettings.analyser.mode + '"]').attr('checked', true);
 
     		$('.stick-mode-group input[name="stick-top"]').val(parseInt(currentSettings.sticks.top));
     		$('.stick-mode-group input[name="stick-left"]').val(parseInt(currentSettings.sticks.left));
@@ -354,6 +371,7 @@ function UserSettingsDialog(dialog, onLoad, onSave) {
     		$('.analyser-settings input[name="analyser-top"]').val(parseInt(currentSettings.analyser.top));
     		$('.analyser-settings input[name="analyser-left"]').val(parseInt(currentSettings.analyser.left));
     		$('.analyser-settings input[name="analyser-size"]').val(parseInt(currentSettings.analyser.size));
+            $('.analyser-settings input[name="analyser-windowsize"]').val(parseInt(currentSettings.analyser.windowSize));
 
     		if(currentSettings.drawWatermark!=null) {
     			// set the toggle switch

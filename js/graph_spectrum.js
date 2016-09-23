@@ -123,9 +123,19 @@ try {
         });
 
 	};
-	
-	var dataLoad = function() {
-		//load all samples
+
+    const ANALYSER_MODES = {
+        auto     			: 1, // Normal mode
+        normalised_30s      : 2, // all output values scaled to a fixed 30s length
+		normalised_60s  	: 3, // all output values scaled to a fixed 60s length
+		normalised_custom	: 4  // all output values scaled to a custom length
+    };
+
+	var dataLoad = function(Mode) {
+
+        var analyserMode = Mode || ANALYSER_MODES.normalised;
+
+        //load all samples
 		var logStart = flightLog.getMinTime();
 		var logEnd = ((flightLog.getMaxTime() - logStart)<=MAX_ANALYSER_LENGTH)?flightLog.getMaxTime():(logStart+MAX_ANALYSER_LENGTH);
 		if(analyserTimeRange.in) {
@@ -135,6 +145,7 @@ try {
             logEnd = analyserTimeRange.out;
         }
 		var allChunks = flightLog.getChunksInTimeRange(logStart, logEnd); //Max 300 seconds
+
 		var samples = new Float64Array(MAX_ANALYSER_LENGTH/1000);
 
         // Loop through all the samples in the chunks and assign them to a sample array ready to pass to the FFT.
@@ -146,9 +157,30 @@ try {
 			}
 		}
 
+		// Calculate the actual length in msec of the sampled data
+		var logNormalisationFactor = null;
+		if(userSettings.analyser != null) {
+			switch (userSettings.analyser.mode) {
+				case ANALYSER_MODES.normalised_30s:
+					logNormalisationFactor = (logEnd-logStart) / 30000000;
+					break;
+				case ANALYSER_MODES.normalised_60s:
+					logNormalisationFactor = (logEnd-logStart) / 60000000;
+					break;
+				case ANALYSER_MODES.normalised_custom:
+					if(parseInt(userSettings.analyser.windowSize) > 0) {
+						logNormalisationFactor = (logEnd-logStart) / parseInt(userSettings.analyser.windowSize) * 1000000;
+					}
+					break;
+				default:
+					logNormalisationFactor = null;
+			}
+		}
+
 		//calculate fft
 		var fftLength = samples.length;
 		var fftOutput = new Float64Array(fftLength * 2);
+
 		var fft = new FFT.complex(fftLength, false);
 		
 		fft.simple(fftOutput, samples, 'real');
@@ -158,14 +190,21 @@ try {
 		var noiseLowEndIdx = 100 / maxFrequency * fftLength;
 		var maxNoiseIdx = 0;
 		var maxNoise = 0;
-		
-		for (var i = 0; i < fftLength; i++) {
-			fftOutput[i] = Math.abs(fftOutput[i]);
-			if (i > noiseLowEndIdx && fftOutput[i] > maxNoise) {
-				maxNoise = fftOutput[i];
-				maxNoiseIdx = i;
+
+        for (var i = 0; i < fftLength; i++) {
+            fftOutput[i] = Math.abs(fftOutput[i]);
+
+			// Normalise the bin if required
+			if(logNormalisationFactor != null) {
+				fftOutput[i] /= logNormalisationFactor;
 			}
-		}
+
+			// Look for the largest noise value
+            if (i > noiseLowEndIdx && fftOutput[i] > maxNoise) {
+                maxNoise = fftOutput[i];
+                maxNoiseIdx = i;
+            }
+        }
 
 		maxNoiseIdx = maxNoiseIdx / fftLength * maxFrequency;
 		

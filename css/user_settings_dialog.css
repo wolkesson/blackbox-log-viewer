@@ -9,6 +9,10 @@
 	min-width: 48px;
 }
 
+.user-settings-dialog input[type=radio] + input[type=number] {
+	margin-left: 10px;
+}
+
 .user-settings-dialog .custom-mixes-group img {
 	width: 125px;
 	max-height: 125px;

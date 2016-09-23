@@ -1307,6 +1307,24 @@
 									<div class="spacer_box_title">Analyser Settings</div>
 								</div>
 								<div class="spacer_box">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <label>Analyser FFT Scale</label>
+                                                <input type="radio" name="analyser-mode" value="1" checked="checked">Auto</input><br>
+                                                <input type="radio" name="analyser-mode" value="2">30s</input><br>
+                                                <input type="radio" name="analyser-mode" value="3">60s</input><br>
+                                                <input type="radio" name="analyser-mode" value="4">Custom</input><input name="analyser-windowsize" type="number" step="1" min="0" max="100"/><p>s</p><br>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <p>The FFT Scaling feature can be set to Auto (normal operation) that scales the height of the frequency bins based upon the length
+                                                    of samples taken. The 30s, 60s and custom selection can be used so that the height of the frequency bins is independent of the number of samples taken.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
 									<table>
 										<tr>
 											<td>
