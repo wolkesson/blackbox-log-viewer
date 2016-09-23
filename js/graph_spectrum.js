@@ -157,23 +157,30 @@ try {
 			}
 		}
 
+        fftData.logStart = formatTime(logStart/1000, true);
+        fftData.logEnd = formatTime(logEnd/1000, true);
+
 		// Calculate the actual length in msec of the sampled data
 		var logNormalisationFactor = null;
 		if(userSettings.analyser != null) {
 			switch (userSettings.analyser.mode) {
 				case ANALYSER_MODES.normalised_30s:
+                    fftData.windowSize = '30s';
 					logNormalisationFactor = (logEnd-logStart) / 30000000;
 					break;
 				case ANALYSER_MODES.normalised_60s:
+                    fftData.windowSize = '60s';
 					logNormalisationFactor = (logEnd-logStart) / 60000000;
 					break;
 				case ANALYSER_MODES.normalised_custom:
 					if(parseInt(userSettings.analyser.windowSize) > 0) {
-						logNormalisationFactor = (logEnd-logStart) / parseInt(userSettings.analyser.windowSize) * 1000000;
+                        fftData.windowSize = userSettings.analyser.windowSize;
+						logNormalisationFactor = (logEnd-logStart) / (parseInt(userSettings.analyser.windowSize) * 1000000);
 					}
 					break;
 				default:
-					logNormalisationFactor = null;
+                    fftData.windowSize = 'Whole Log';
+                    logNormalisationFactor = null;
 			}
 		}
 
@@ -212,6 +219,8 @@ try {
 		fftData.fftLength = fftLength;
 		fftData.fftOutput = fftOutput;
 		fftData.maxNoiseIdx = maxNoiseIdx;
+
+
 	};
 
 	/**
@@ -265,6 +274,7 @@ try {
 		}
 
 		drawAxisLabel(dataBuffer.fieldName, WIDTH - 4, HEIGHT - 6, 'right');
+        if(isFullscreen) drawAxisLabel('Window Size : ' + fftData.windowSize + ' (' + fftData.logStart + ' to ' + fftData.logEnd + ')', MARGIN + 20, MARGIN + 20, 'left');
 		drawGridLines(PLOTTED_BLACKBOX_RATE, LEFT, TOP, WIDTH, HEIGHT, MARGIN);
 
 		var offset = 0;
