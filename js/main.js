@@ -1888,16 +1888,22 @@ function BlackboxLogViewer() {
 }
 
 function getManifestVersion(manifest) {
-    if (!manifest) {
-        manifest = chrome.runtime.getManifest();
-    }
+    try {
+        if (!manifest) {
+            manifest = chrome.runtime.getManifest();
+        }
 
-    var version = manifest.version_name;
-    if (!version) {
-        version = manifest.version;
-    }
+        var version = manifest.version_name;
+        if (!version) {
+            version = manifest.version;
+        }
 
-    return version;
+        return version;
+
+    } catch (error) {
+        console.log("manifest does not exist, probably not running nw.js");
+        return "-"
+    }
 }
 
 // Boostrap's data API is extremely slow when there are a lot of DOM elements churning, don't use it

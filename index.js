@@ -3,7 +3,7 @@ openLinksInExternalBrowserByDefault();
 
 $(document).ready(function () {
     // translate to user-selected language
-    localize();
+    if (is_nwjs()) { localize(); }
 });
 
 function checkForConfiguratorUpdates() {
@@ -54,19 +54,33 @@ function notifyOutdatedVersion(releaseData) {
 }
 
 function getManifestVersion(manifest) {
-    if (!manifest) {
-        manifest = chrome.runtime.getManifest();
-    }
+    try {
+        if (!manifest) {
+            manifest = chrome.runtime.getManifest();
+        }
 
-    var version = manifest.version_name;
-    if (!version) {
-        version = manifest.version;
-    }
+        var version = manifest.version_name;
+        if (!version) {
+            version = manifest.version;
+        }
 
-    return version;
+        return version;
+
+    } catch (error) {
+        console.log("manifest does not exist, probably not running nw.js");
+        return "-"
+    }
 }
 
-checkForConfiguratorUpdates();
+function is_nwjs(){
+    try{
+        return (typeof require('nw.gui') !== "undefined");
+    } catch (e){
+        return false;
+    }
+}
+
+if (is_nwjs()) { checkForConfiguratorUpdates(); }
 
 function openLinksInExternalBrowserByDefault() {
     try {
