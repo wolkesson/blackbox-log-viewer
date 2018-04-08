@@ -1167,6 +1167,11 @@ div#lap-timer td:first-child {
     display: none;
 }
 
+html.no-nw viewer-download !important,
+html.no-nw a.btn-new-window{
+	display: none;
+}
+
 /*
  Bootstrap Tooltip Overrides
 */
