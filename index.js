@@ -66,18 +66,25 @@ function notifyOutdatedVersion(releaseData) {
 }
 
 function getManifestVersion(manifest) {
-    if (!is_nwjs()) return "-";
-    
-    if (!manifest) {
-        manifest = chrome.runtime.getManifest();
-    }
+    if (is_nwjs()) {
+        if (!manifest) {
+            manifest = chrome.runtime.getManifest();
+        }
 
-    var version = manifest.version_name;
-    if (!version) {
-        version = manifest.version;
-    }
+        var version = manifest.version_name;
+        if (!version) {
+            version = manifest.version;
+        }
 
-    return version;
+        return version;
+    } else {
+        $.getJSON("manifest.json", function(data) {
+            $("#viewer-version").html('You are using an <em>online</em> version ' + data.version);
+            $(".viewer-version").text('v' + data.version);
+        });
+
+        return "-";
+    }
 }
 
 if (is_nwjs()) { checkForConfiguratorUpdates(); }
