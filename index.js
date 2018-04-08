@@ -1,9 +1,21 @@
 
 openLinksInExternalBrowserByDefault();
 
-$(document).ready(function () {
+function is_nwjs(){
+    try{
+        return (typeof require('nw.gui') !== "undefined");
+    } catch (e){
+        return false;
+    }
+}
+
+$(document).ready(function() {
     // translate to user-selected language
-    localize();
+    if (is_nwjs()) {
+        localize();
+    } else {
+        $('html').addClass("no-nw");
+    }
 });
 
 function checkForConfiguratorUpdates() {
@@ -54,19 +66,28 @@ function notifyOutdatedVersion(releaseData) {
 }
 
 function getManifestVersion(manifest) {
-    if (!manifest) {
-        manifest = chrome.runtime.getManifest();
-    }
+    if (is_nwjs()) {
+        if (!manifest) {
+            manifest = chrome.runtime.getManifest();
+        }
 
-    var version = manifest.version_name;
-    if (!version) {
-        version = manifest.version;
-    }
+        var version = manifest.version_name;
+        if (!version) {
+            version = manifest.version;
+        }
 
-    return version;
+        return version;
+    } else {
+        $.getJSON("manifest.json", function(data) {
+            $("#viewer-version").html('You are using an <em>online</em> version ' + data.version);
+            $(".viewer-version").text('v' + data.version);
+        });
+
+        return "-";
+    }
 }
 
-checkForConfiguratorUpdates();
+if (is_nwjs()) { checkForConfiguratorUpdates(); }
 
 function openLinksInExternalBrowserByDefault() {
     try {
