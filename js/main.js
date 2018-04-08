@@ -3,8 +3,6 @@
 // Global Level Variables
 var userSettings = {};
 
-var VIEWER_VERSION = getManifestVersion(); // Current version
-
 var INNER_BOUNDS_WIDTH  = 1340,
     INNER_BOUNDS_HEIGHT = 900;
 
@@ -803,7 +801,6 @@ function BlackboxLogViewer() {
     });
     
     $(document).ready(function() {
-
         $('[data-toggle="tooltip"]').tooltip({trigger: "hover", placement: "auto bottom"}); // initialise tooltips
         $('[data-toggle="dropdown"]').dropdown(); // initialise menus
         $('a.auto-hide-menu').click(function() {
@@ -811,6 +808,7 @@ function BlackboxLogViewer() {
         });
 
         // Get Latest Version Information
+		var VIEWER_VERSION = getManifestVersion(); // Current version
         $("#viewer-version").text('You are using version ' + VIEWER_VERSION);
         $(".viewer-version", statusBar).text('v'+VIEWER_VERSION);
         try {
@@ -1885,25 +1883,6 @@ function BlackboxLogViewer() {
         seekBar.onSeek = setCurrentBlackboxTime;
 
     });
-}
-
-function getManifestVersion(manifest) {
-    try {
-        if (!manifest) {
-            manifest = chrome.runtime.getManifest();
-        }
-
-        var version = manifest.version_name;
-        if (!version) {
-            version = manifest.version;
-        }
-
-        return version;
-
-    } catch (error) {
-        console.log("manifest does not exist, probably not running nw.js");
-        return "-"
-    }
 }
 
 // Boostrap's data API is extremely slow when there are a lot of DOM elements churning, don't use it
