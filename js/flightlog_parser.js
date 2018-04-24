@@ -236,6 +236,9 @@ var FlightLogParser = function(logData) {
             iterm_reset_offset:null,        // I-Term reset offset
             deadband:null,                  // Roll, Pitch Deadband
             yaw_deadband:null,              // Yaw Deadband
+            gyro_lpf:null,                  // Gyro lpf setting. (pre BF3.4)
+            gyro_hardware_lpf:null,         // Gyro hardware lpf setting. (post BF3.4)
+            gyro_32khz_hardware_lpf:null,   // Gyro 32khz hardware lpf setting. (post BF3.4)
             gyro_lpf:null,                  // Gyro lpf setting.
             gyro_lowpass_hz:null,           // Gyro Soft Lowpass Filter Hz
             gyro_notch_hz:null,             // Gyro Notch Frequency
@@ -390,6 +393,9 @@ var FlightLogParser = function(logData) {
                 if (matches) {
                     that.sysConfig.frameIntervalPNum = parseInt(matches[1], 10);
                     that.sysConfig.frameIntervalPDenom = parseInt(matches[2], 10);
+                } else {
+                    that.sysConfig.frameIntervalPNum = 1;
+                    that.sysConfig.frameIntervalPDenom = parseInt(fieldValue, 10);
                 }
             break;
             // case "P denom":
@@ -452,6 +458,8 @@ var FlightLogParser = function(logData) {
             case "deadband":
             case "yaw_deadband":
             case "gyro_lpf":
+            case "gyro_hardware_lpf":
+            case "gyro_32khz_hardware_lpf":
             case "acc_lpf_hz":
             case "acc_hardware":
             case "baro_hardware":
