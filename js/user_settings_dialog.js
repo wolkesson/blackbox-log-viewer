@@ -51,7 +51,8 @@ function UserSettingsDialog(dialog, onLoad, onSave) {
         drawSticks          : true, 
 		drawTime			: true,
 		drawEvents			: true,
-		drawAnalyser		: true,             // add an analyser option
+		drawAnalyser		: true,             // Show analyser on display?
+		drawSpectrogram		: true,             // Show Spectrogram on display?
 		drawWatermark		: false,			// Show Watermark on display?
 		drawLapTimer		: false,			// Show Laptimer on display?
 		graphSmoothOverride : false, 			// Ability to toggle smoothing off=normal/ on=force 0%

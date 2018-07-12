@@ -654,12 +654,12 @@ html .view-craft,
 html .view-sticks,
 html .view-table,
 html .view-analyser,
-html .view-analyser-sticks,
+html .view-spectrogram,
 html .view-analyser-fullscreen {
      color:black;
 }
 
-html.has-analyser-sticks.isBF .view-analyser-sticks,
+html.has-spectrogram.isBF .view-spectrogram,
 html.has-analyser.isBF .view-analyser,
 html.has-table.isBF .view-table,
 html.has-sticks.isBF .view-sticks,
@@ -668,7 +668,7 @@ html:not(.video-hidden).isBF .view-video {
      color: rgba(158, 100, 0,1);
 }
 
-html.has-analyser-sticks.isCF .view-analyser-sticks,
+html.has-spectrogram.isCF .view-spectrogram,
 html.has-analyser.isCF .view-analyser,
 html.has-table.isCF .view-table,
 html.has-sticks.isCF .view-sticks,
@@ -677,7 +677,7 @@ html:not(.video-hidden).isCF .view-video {
      color: rgba(0, 162, 63,1);
 }
 
-html.has-analyser-sticks.isINAV .view-analyser-sticks,
+html.has-spectrogram.isINAV .view-spectrogram,
 html.has-analyser.isINAV .view-analyser,
 html.has-table.isINAV .view-table,
 html.has-sticks.isINAV .view-sticks,

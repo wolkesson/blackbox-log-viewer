@@ -66,8 +66,8 @@ function BlackboxLogViewer() {
         fieldPresenter = FlightLogFieldPresenter,
         
         hasVideo = false, hasLog = false, hasMarker = false, // add measure feature
-        hasTable = true, hasAnalyser, hasAnalyserFullscreen,
-        hasAnalyserSticks = false, viewVideo = true, hasTableOverlay = false, hadTable,
+        hasTable = true, hasAnalyser, hasAnalyserFullscreen, hasSpectrogram,
+        viewVideo = true, hasTableOverlay = false, hadTable,
         hasConfig = false, hasConfigOverlay = false,
 
         isFullscreen = false, // New fullscreen feature (to hide table)
@@ -923,20 +923,15 @@ function BlackboxLogViewer() {
             }
         });
 
-        /* Always start with the table hidden
-        prefs.get('hasTable', function(item) {
-           if (item) {
-               hasTable = item;
-               html.toggleClass("has-table", hasTable);
-           } 
-        });
-        */
+        /* Always start with the table, analyser and spectrogram hidden */
         hasTable = false;
         html.toggleClass("has-table", hasTable);
         
-        // Reset the analyser window on application startup.
         hasAnalyser = false;
         html.toggleClass("has-analyser", hasAnalyser);
+
+        hasSpectrogram = false;
+        html.toggleClass("has-spectrogram", hasSpectrogram);
 
         $(".btn-new-window").click(function(e) {            
             chrome.app.window.create('index.html', {
@@ -1011,6 +1006,14 @@ function BlackboxLogViewer() {
             graph.setDrawAnalyser(hasAnalyser);            
             html.toggleClass("has-analyser", hasAnalyser);       
             prefs.set('hasAnalyser', hasAnalyser);
+            invalidateGraph();
+        });
+
+        $(".view-spectrogram").click(function() {
+            hasSpectrogram = !hasSpectrogram;
+            graph.setDrawSpectrogram(hasSpectrogram);            
+            html.toggleClass("has-apectrogram", hasSpectrogram);       
+            prefs.set('hasSpectrogram', hasSpectrogram);
             invalidateGraph();
         });
 

@@ -45,8 +45,12 @@ function FlightLogGrapher(flightLog, graphConfig, canvas, stickCanvas, craftCanv
         
         defaultOptions = {
             gapless:false,
-            craftType:"3D", drawPidTable:true, drawSticks:true, drawTime:true,
-            drawAnalyser:true,              // add an analyser option
+            craftType:"3D", 
+            drawPidTable:true, 
+            drawSticks:true, 
+            drawTime:true,
+            drawAnalyser:true,              
+            drawSpectrogram:false,
             analyserSampleRate:2000/*Hz*/,  // the loop time for the log
             eraseBackground: true           // Set to false if you want the graph to draw on top of an existing canvas image
         },
@@ -67,7 +71,9 @@ function FlightLogGrapher(flightLog, graphConfig, canvas, stickCanvas, craftCanv
         
         craft3D = null, craft2D = null,
         
-    	analyser = null, /* define a new spectrum analyser */
+        analyser = null, /* define a new spectrum analyser */
+        
+        spectrogram = null, /* Spectrogram analyser */
 
         watermarkLogo, /* Watermark feature */
         
@@ -77,10 +83,6 @@ function FlightLogGrapher(flightLog, graphConfig, canvas, stickCanvas, craftCanv
 
     
     this.onSeek = null;
-    
-    this.getAnalyser = function() {
-        return analyser;
-    }
 
     function extend(base, top) {
         var 
@@ -703,6 +705,7 @@ function FlightLogGrapher(flightLog, graphConfig, canvas, stickCanvas, craftCanv
         });
         
         if(analyser!=null) analyser.resize();
+        if(spectrogram!=null) spectrogram.resize();
 
         // Calculate again the position/size of frame label
         frameLabelTextWidthFrameNumber = null;
@@ -724,6 +727,17 @@ function FlightLogGrapher(flightLog, graphConfig, canvas, stickCanvas, craftCanv
             } else {
                 canvasContext.clearRect(0, 0, canvas.width, canvas.height);
             }
+        }
+
+        // Draw Spectrogram
+        if (options.drawSpectrogram) {
+            // try { 	            
+                spectrogram.draw(windowStartTime, windowEndTime);
+            // } 
+            // catch(err) 
+            // {
+            //     console.log('Cannot plot spectrogram');
+            // }            
         }
         
         var 
@@ -948,20 +962,24 @@ function FlightLogGrapher(flightLog, graphConfig, canvas, stickCanvas, craftCanv
     this.setInTime = function(time) {
         inTime = time;
         analyser.setInTime(inTime);
+        spectrogram.setInTime(inTime);
 
         if (outTime <= inTime) {
             outTime = false;
             analyser.setOutTime(outTime);
+            spectrogram.setInTime(outTime);
         }
     };
 
     this.setOutTime = function(time) {
         outTime = time;
         analyser.setOutTime(outTime);
+        spectrogram.setOutTime(outTime);
         
         if (inTime >= outTime) {
             inTime = false;
             analyser.setInTime(inTime);
+            spectrogram.setOutTime(inTime);
         }
     };
 
@@ -976,12 +994,17 @@ function FlightLogGrapher(flightLog, graphConfig, canvas, stickCanvas, craftCanv
     };
 
     // Add option toggling
-    this.setDrawAnalyser= function(state) {
+    this.setDrawAnalyser = function(state) {
       options.drawAnalyser = state;  
     };
-    
+
+    // Add option toggling
+    this.setDrawSpectrogram = function(state) {
+      options.drawSpectrogram = state;  
+    };
+
     // Add analyser zoom toggling
-    this.setAnalyser= function(state) {
+    this.setAnalyser = function(state) {
       analyser.setFullscreen( state );  
     };
     
@@ -1010,7 +1033,20 @@ function FlightLogGrapher(flightLog, graphConfig, canvas, stickCanvas, craftCanv
     this.refreshLogo();
     
     /* Create the FlightLogAnalyser object */
-	analyser = new FlightLogAnalyser(flightLog, canvas, analyserCanvas);
+    analyser = new FlightLogAnalyser(flightLog, canvas, analyserCanvas);
+    
+    /* Create the FlightLogSpectrogram object */
+    spectrogram = new FlightLogSpectrogram(flightLog, canvas, analyserCanvas);
+    graphConfig.addListener((newconfig)=> {
+        var field = newconfig.getGraphs()[graphConfig.selectedGraphIndex].fields[graphConfig.selectedFieldIndex];
+        var index = flightLog.getMainFieldIndexByName(field.name);
+        field.curve = new ExpoCurve(field.curve.offset, 
+            ((options.graphExpoOverride)?1.0:field.curve.power), 
+            field.curve.inputRange, 
+            field.curve.outputRange, 
+            field.curve.steps); 
+        spectrogram.setField(index, field.curve, graphConfig.selectedFieldName);
+    });
 
     /* Create the Lap Timer object */
 	lapTimer = new LapTimer();
